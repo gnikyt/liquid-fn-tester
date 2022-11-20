@@ -81,6 +81,72 @@ Example: `docker run -it -v .:/app:z liquid_fn node index.js someone.myshopify.c
 
 Example: `node index.js someone.myshopify.com 89yurui389389ryiuriuu488 89389838 example`
 
+## Events
+
+Several events are executed during the test suite's run. You have the ability to tap into any of these events or even define your own. The [example test](./tests/example.js) shows how you can utilize the `setup` function to define events to listen for. Each event may pass in an object (details) to your listener.
+
+### API
+
+* `.on([event_name(s)], [handler])`
+  * Adds `[handler]` to listen to the `[event_name(s)]`.
+* `.off([event_name(s)], [handler])`
+  * Removes `[handler]` from `[event_name(s)]`
+* `.once([event_name(s)], [handler])`
+  * Adds `[handler]` to listen to the `[event_name(s)]`, fired only once.
+* `.emit([event_name], [details])`
+  * Fires event with a name of `[event_name]` and passed `[details]` to handlers.
+
+### Built-in
+
+* `setup:start`: When `setup` is called. Details:
+  * None
+* `setup:end`: When `setup` has ran successfully. Details:
+  * Response from page creation
+  * Response from snippet creation
+* `setup:failure`: When `setup` failed. Detail:
+  * Error object
+* `liquid-load:start`: Attempt to load the snippet contents. Details:
+  * File path of snippet, to attempt reading
+* `liquid-load:end`: When snippet was successfully read. Details:
+  * File path of snippet
+* `liquid-load:failure`: When snippet failed to be read. Details:
+  * Error object
+* `teardown:start`: When `teardown` is called. Details:
+  * None
+* `teardown:end`: When `teardown` has ran successfully. Details:
+  * Responses from deleting page templates
+* `teardown:failure`: When `teardown` has failed. Details:
+  * Error object
+* `render:start`: When `render` is called. Details:
+  * Liquid setup code
+  * Delay value
+* `render:end`: When rendering ran successfully. Details:
+  * None
+* `render:retry`: When page fetch received HTML content, should be no HTML doctype due to no layout. Details:
+  * None
+* `render:retry:failure`: When retry has also failed. Details:
+  * None
+* `render:suffix`: Suffix generated for the dynamic page template. Details:
+  * Suffix string
+* `assert:start`: Before an assertion is ran. Details:
+  * Description of test
+  * Assertion logic
+  * Expected result
+  * Actual result
+* `assert:success`: After an assertion has ran successfully. Details:
+  * Description of test
+  * Assertion logic
+  * Expected result
+  * Actual result
+  * Message (for optional console output)
+* `assert:failure`: After an assertion has failed. Details:
+  * Description of test
+  * Assertion logic
+  * Expected result
+  * Actual result
+  * Message (for optional console output)
+  * Error object
+
 ## Examples
 
 See [tests/example.liquid](./tests/example.liquid) and [tests/example.js](./tests/example.js).
