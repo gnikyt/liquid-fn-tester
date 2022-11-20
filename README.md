@@ -87,13 +87,13 @@ Several events are executed during the test suite's run. You have the ability to
 
 ### API
 
-* `.on([event_name(s)], [handler])`
+* `on([event_name(s)], [handler])`
   * Adds `[handler]` to listen to the `[event_name(s)]`.
-* `.off([event_name(s)], [handler])`
+* `off([event_name(s)], [handler])`
   * Removes `[handler]` from `[event_name(s)]`
-* `.once([event_name(s)], [handler])`
+* `once([event_name(s)], [handler])`
   * Adds `[handler]` to listen to the `[event_name(s)]`, fired only once.
-* `.emit([event_name], [details])`
+* `emit([event_name], [details])`
   * Fires event with a name of `[event_name]` and passed `[details]` to handlers.
 
 ### Built-in
