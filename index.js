@@ -4,19 +4,37 @@ const Assets = require("./src/assets");
 const Emitter = require("./src/emitter");
 const textfmt = require("./src/text-fmt");
 
+// Usage message
+const usageMsg = `
+  \tDocker:
+  \t> docker run -it -v .:/app:z liquid_fn node index.js (store) (token) (theme_id) (test_name)
+
+  \tNode:
+  \t> node index.js (store) (token) (theme_id) (test_name)
+`;
+
+/**
+ * Exit process and display message.
+ * @param {string} msg Message to display on console.
+ * @returns {void}
+ */
+function exit(msg) {
+  console.error(textfmt.error(msg));
+  process.exit(1);
+}
+
 /**
  * Main run.
  * @returns {Promise<void>}
  */
 async function main() {
   // Get arguments we need
-  const [shop, token, themeId, entry] = process.argv.shift().shift();
+  const [shop, token, themeId, entry] = process.argv.slice(2);
   if (!shop || !token || !themeId || !entry) {
     // Something is missing
-    console.error(
-      textfmt.error("Missing shop, token, theme ID, or entry parameter."),
+    exit(
+      `Missing shop, token, theme ID, or entry parameter.\nUsage:${usageMsg}`,
     );
-    process.exit(1);
   }
 
   // Setup Shopify API
@@ -29,8 +47,14 @@ async function main() {
   const assets = new Assets(themeId, api);
 
   // Get the test file and init it
-  // eslint-disable-next-line global-require
-  const TestFile = require(path.resolve("tests", `${entry}.js`));
+  let TestFile;
+  try {
+    // eslint-disable-next-line global-require
+    TestFile = require(path.resolve("tests", `${entry}.js`));
+  } catch (e) {
+    exit(`Unable to load test suite: ${e.message}`);
+  }
+
   const test = new TestFile({
     assets,
     emitter,
@@ -46,8 +70,7 @@ async function main() {
     try {
       await test.setup();
     } catch (e) {
-      console.error(textfmt.error(`Unable to setup test: ${e.message}`));
-      process.exit(1);
+      exit(`Unable to setup test: ${e.message}`);
     }
   };
 
@@ -59,8 +82,7 @@ async function main() {
     try {
       await test.teardown();
     } catch (e) {
-      console.error(textfmt.error(`Unable to teardown test: ${e.message}`));
-      process.exit(1);
+      exit(`Unable to teardown test: ${e.message}`);
     }
   };
 
@@ -74,7 +96,6 @@ async function main() {
       return true;
     } catch (e) {
       await teardown();
-      console.error(textfmt.error("Failed"));
       return e;
     }
   };

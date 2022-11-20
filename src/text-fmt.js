@@ -1,14 +1,14 @@
 // Colors
-const CRED = "033[0;31m";
-const CBLUE = "033[0;34m";
-const CYELLOW = "033[0;33m";
-const CGREEN = "033[0;32m";
-const CONGREEN = "033[42m";
-const CONRED = "033[41m";
-const CONBLACK = "033[40m";
-const CUBLACK = "033[4;29m";
-const CBBLACK = "033[1m";
-const CRESET = "033[0m";
+const CRED = "\x1b[0;31m";
+const CBLUE = "\x1b[0;34m";
+const CYELLOW = "\x1b[0;33m";
+const CGREEN = "\x1b[0;32m";
+const CONGREEN = "\x1b[42m";
+const CONRED = "\x1b[41m";
+const CONBLACK = "\x1b[40m";
+const CUBLACK = "\x1b[4;29m";
+const CBBLACK = "\x1b[1m";
+const CRESET = "\x1b[0m";
 
 /**
  * Colored text support.
@@ -17,7 +17,7 @@ const CRESET = "033[0m";
  * @returns {string}
  */
 function color(clr, msg) {
-  return `\${clr}${msg}\${CRESET}`;
+  return `${clr}${msg}${CRESET}`;
 }
 
 /**
@@ -28,7 +28,6 @@ function color(clr, msg) {
 function error(msg) {
   const colorErr = color(CONRED, " ERR ");
   const colorLine = color(CRED, msg);
-
   return `${colorErr} ${colorLine}`;
 }
 
