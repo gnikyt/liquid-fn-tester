@@ -1,0 +1,38 @@
+{
+  "name": "liquid-fn-tester",
+  "version": "1.0.0",
+  "description": "Locally test Liquid snippets",
+  "author": "Tyler King <tyler.n.king@gmail.com>",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "prettier:lint": "prettier -c .",
+    "prettier:fix": "prettier -w .",
+    "release:major": "npm version major",
+    "release:minor": "npm version minor",
+    "release:patch": "npm version patch",
+    "postversion": "git push && git push --tags"
+  },
+  "homepage": "https://github.com/osiset/liquid-fn-tester#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+github.com/osiset/liquid-fn-tester.git"
+  },
+  "bugs": {
+    "url": "https://github.com/osiset/liquid-fn-tester/issues"
+  },
+  "dependencies": {
+    "@shopify/shopify-api": "^5.2.0",
+    "node-fetch": "^3.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.7.1"
+  }
+}

@@ -1,0 +1,4 @@
+node_modules/
+tests/
+!tests/example.js
+!tests/example.liquid
