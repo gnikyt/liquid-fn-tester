@@ -1,7 +1,6 @@
 # Liquid Function Tester
 
-Designed as a boilerplate to test snippets.
-Allowing you to define a test suite to test your snippet results.
+Designed as a boilerplate to test snippets. Allowing you to define a test suite to test your snippet results.
 
 How it works:
 
@@ -12,7 +11,7 @@ How it works:
 5. Results are outputted to the terminal
 6. Cleanup of page templates
 
-Because it runs _on_ the Shopify store, any Liquid will be in the context of the shop including all variables (local, product, request, etc).
+Because it runs _on_ the Shopify store, any Liquid will be in the context of the shop including all variables (local, `all_products`, `product`, `request`, etc).
 
 ## Installation
 
