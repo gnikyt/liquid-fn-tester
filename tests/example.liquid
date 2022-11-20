@@ -1,0 +1,38 @@
+{%- liquid
+  # Remove tag prefix from the string
+  assign value_cleaned = value | split: ':' | last | trim
+
+  # Determine if there is a decimal place
+  assign has_decimal = false
+  if value_cleaned contains '.'
+    assign has_decimal = true
+  endif
+
+  # Ensure leading zero is present
+  assign first_char = value_cleaned | slice: 0
+  if has_decimal and first_char == '.'
+    assign value_cleaned = '0' | append: value_cleaned
+  endif
+
+  # Remove trailing zero (if decimal places)
+  assign last_char = value_cleaned | slice: -1, 1
+  if has_decimal and last_char == '0'
+    assign last_char_rm = value_cleaned | size | minus: 1
+    assign value_cleaned = value_cleaned | slice: 0, last_char_rm
+  endif
+
+  # Remove empty decimal place, if existing
+  assign last_two_chars = value_cleaned | slice: -2, 2
+  if last_two_chars == '.0'
+    assign value_cleaned = value_cleaned | remove: '.0'
+  endif
+
+  # Remove ".(nothing)", if existing
+  assign last_char = value_cleaned | slice: -1, 1
+  if last_char == '.'
+    assign last_char_rm = value_cleaned | size | minus: 1
+    assign value_cleaned = value_cleaned | slice: 0, last_char_rm
+  endif
+
+  echo value_cleaned
+-%}
