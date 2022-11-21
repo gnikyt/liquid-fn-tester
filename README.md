@@ -71,13 +71,13 @@ Three items are required for running a test:
 
 ### Docker
 
-`docker run -it -v .:/app:z liquid_fn node index.js (store) (token) (theme_id) (test_name)`
+`docker run -it -v .:/app:z liquid_fn node index.js (store) (token) (theme_id) (test_name) [presenter]`
 
 Example: `docker run -it -v .:/app:z liquid_fn node index.js someone.myshopify.com 89yurui389389ryiuriuu488 89389838 example`.
 
 ### Manual
 
-`node index.js (store) (token) (theme_id) (test_name)`
+`node index.js (store) (token) (theme_id) (test_name) [presenter]`
 
 Example: `node index.js someone.myshopify.com 89yurui389389ryiuriuu488 89389838 example`
 
@@ -121,7 +121,7 @@ Several events are executed during the test suite's run. You have the ability to
   * Liquid setup code
   * Delay value
 * `render:end`: When rendering ran successfully. Details:
-  * None
+  * HTTP text response from render call
 * `render:retry`: When page fetch received HTML content, should be no HTML doctype due to no layout. Details:
   * None
 * `render:retry:failure`: When retry has also failed. Details:
@@ -138,19 +138,19 @@ Several events are executed during the test suite's run. You have the ability to
   * Assertion logic
   * Expected result
   * Actual result
-  * Message (for optional console output)
 * `assert:failure`: After an assertion has failed. Details:
   * Description of test
   * Assertion logic
   * Expected result
   * Actual result
-  * Message (for optional console output)
   * Error object
 
 ## Examples
 
 See [tests/example.liquid](./tests/example.liquid) and [tests/example.js](./tests/example.js).
 
-Example output:
+Various methods of output presenters are supported; default is `console` with addition to `json` and `json-pretty`. Example output of both:
 
-![Output](./example.png)
+| Console | JSON |
+| ------- | ---- |
+| ![Output: Console](./example-console.png) | ![Output: JSON-Pretty](./example-json.png) |

@@ -1,5 +1,5 @@
 const { DataType } = require("@shopify/shopify-api");
-const { HttpMethod, AssetType } = require("./constants");
+const { HttpMethod, AssetType } = require("../constants");
 
 /**
  * Assets handler.

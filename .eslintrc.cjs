@@ -13,6 +13,7 @@ module.exports = {
     "no-console": "off",
     "import/no-dynamic-require": "off",
     "no-await-in-loop": "off",
+    "no-restricted-syntax": "off",
     quotes: ["error", "double"],
   },
   ignorePatterns: ["node_modules/**/*"],

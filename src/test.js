@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 const fs = require("fs/promises");
 const path = require("path");
 const nodeAssert = require("assert");
-const textfmt = require("./text-fmt");
+const { Event } = require("./constants");
 
 /**
  * Base test, to be extended from.
@@ -12,10 +12,11 @@ class BaseTest {
    * Setup.
    * @param {Assets} param0.assets Assets handler.
    * @param {Emitter} param0.emitter Event emitter.
+   * @param {Tracker} param0.tracker Result tracker.
    * @param {string} param0.entry Entry name for test files.
    * @param {string} param0.shop Shopify shop URL.
    */
-  constructor({ assets, emitter, entry, shop }) {
+  constructor({ assets, emitter, tracker, entry, shop }) {
     // Setup entry name
     this.entry = entry;
 
@@ -25,8 +26,11 @@ class BaseTest {
     // Asset handler
     this.assets = assets;
 
-    // Evetn emitter
+    // Event emitter
     this.emitter = emitter;
+
+    // Result tracker
+    this.tracker = tracker;
   }
 
   /**
@@ -36,15 +40,15 @@ class BaseTest {
   async loadLiquid() {
     // Filepath
     const fp = path.resolve("tests", `${this.entry}.liquid`);
-    this.emitter.emit("liquid-load:start", fp);
+    this.emitter.emit(Event.LiquidLoadStart, fp);
 
     try {
       // Load setup and snippet entry supplied
       const file = await fs.readFile(fp, "utf8");
-      this.emitter.emit("liquid-load:end", fp);
+      this.emitter.emit(Event.LiquidLoadEnd, fp);
       return file;
     } catch (e) {
-      this.emitter.emit("liquid-load:failure", e);
+      this.emitter.emit(Event.LiquidLoadFailure, e);
       throw e;
     }
   }
@@ -55,8 +59,16 @@ class BaseTest {
    */
   async setup() {
     // Get the test content
-    this.emitter.emit("setup:start");
+    this.emitter.emit(Event.SetupStart);
     const snippetLiquid = await this.loadLiquid(this.entry);
+
+    // Setup event listeners to track assertions
+    this.emitter.on(Event.AssertSuccess, ({ desc, expected, actual }) => {
+      this.tracker.push(desc, { expected, actual, success: true });
+    });
+    this.emitter.on(Event.AssertFailure, ({ desc, expected, actual }) => {
+      this.tracker.push(desc, { expected, actual, success: false });
+    });
 
     try {
       // Create the test page, snippet, etc
@@ -65,10 +77,10 @@ class BaseTest {
         this.assets.createSnippet(snippetLiquid),
       ]);
 
-      this.emitter.emit("setup:end", results);
+      this.emitter.emit(Event.SetupEnd, results);
       return results;
     } catch (e) {
-      this.emitter.emit("setup:failure", e);
+      this.emitter.emit(Event.SetupFailure, e);
       throw e;
     }
   }
@@ -78,7 +90,7 @@ class BaseTest {
    * @returns {Promise<Object>}
    */
   async teardown() {
-    this.emitter.emit("teardown:start");
+    this.emitter.emit(Event.TeardownStart);
 
     // Delete all created page templates
     try {
@@ -88,9 +100,9 @@ class BaseTest {
       });
 
       const results = await Promise.all(promises);
-      this.emitter.emit("teardown:end", results);
+      this.emitter.emit(Event.TeardownEnd, results);
     } catch (e) {
-      this.emitter.emit("teardown:failure", e);
+      this.emitter.emit(Event.TeardownFailure, e);
       throw e;
     }
   }
@@ -102,15 +114,15 @@ class BaseTest {
    * @returns {Promise<string>}
    */
   async render(template, { delay } = { delay: 1000 }) {
-    this.emitter.emit("render:start", { template, delay });
+    this.emitter.emit(Event.RenderStart, { template, delay });
 
     // Create page template
     let suffix;
     try {
       suffix = await this.assets.createPageTemplate(template);
-      this.emitter.emit("render:suffix", { template, suffix });
+      this.emitter.emit(Event.RenderSuffix, { template, suffix });
     } catch (e) {
-      this.emitter.emit("render:failure", e);
+      this.emitter.emit(Event.RenderFailure, e);
     }
 
     // Track if retried
@@ -136,18 +148,18 @@ class BaseTest {
       if (hasHtml && !retried) {
         // Retry page call
         retried = true;
-        this.emitter.emit("render:retry");
+        this.emitter.emit(Event.RenderRetry);
 
         const textRetry = await fetchPage();
         processPage(textRetry, resolve);
       } else if (hasHtml && retried) {
         // Reached our max... something wrong on Shopify's side
-        this.emitter.emit("render:retry:failure");
-        this.emitter.emit("render:end", "");
+        this.emitter.emit(Event.RenderRetryFailure);
+        this.emitter.emit(Event.RenderEnd, "");
         resolve("Response returned unexpected HTML.");
       } else {
         // All good, no HTML
-        this.emitter.emit("render:end", text);
+        this.emitter.emit(Event.RenderEnd, text);
         resolve(text);
       }
     };
@@ -168,53 +180,32 @@ class BaseTest {
    * @param {boolean} assertion Assertion test for truthy/falsey.
    * @param {any} expected Expected result.
    * @param {any} actual Actual result.
-   * @returns {Object}
+   * @returns {boolean}
    */
   async assert(desc, assertion, expected, actual) {
-    this.emitter.emit("assert:start", { desc, assertion, expected, actual });
-
-    // Output messaging
-    const msg = {
-      stack: [
-        textfmt.color(textfmt.CUBLACK, `Test: ${desc}`),
-        textfmt.color(textfmt.CONBLACK, " Expected "),
-        expected,
-        textfmt.color(textfmt.CONBLACK, " Actual "),
-        actual,
-      ],
-      get compiled() {
-        return `${this.stack.join("\n")}\n`;
-      },
-    };
-
-    // Result line to modify after assertion is complete
-    const pass = textfmt.color(textfmt.CONGREEN, " Passed ");
-    const error = textfmt.color(textfmt.CONRED, " Error ");
+    this.emitter.emit(Event.AssertStart, { desc, assertion, expected, actual });
 
     try {
       // Assert
       nodeAssert(assertion);
-      msg.stack.push(pass);
-      this.emitter.emit("assert:success", {
+      this.emitter.emit(Event.AssertSuccess, {
         desc,
         assertion,
         expected,
         actual,
-        msg,
       });
+      return true;
     } catch (e) {
       // Error
-      msg.stack.push(error);
-      this.emitter.emit("assert:failure", {
+      this.emitter.emit(Event.AssertFailure, {
         desc,
         assertion,
         expected,
         actual,
-        msg,
         error: e,
       });
+      return false;
     }
-    return msg;
   }
 }
 
