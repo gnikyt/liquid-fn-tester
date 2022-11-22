@@ -35,8 +35,15 @@ const Event = Object.freeze({
   AssertFailure: "assert:failure",
 });
 
+// Presenter types
+const PresenterType = {
+  Default: "default",
+  JSON: "json",
+};
+
 module.exports = {
   AssetType,
+  PresenterType,
   HttpMethod,
   Event,
 };

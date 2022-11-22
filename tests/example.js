@@ -5,7 +5,7 @@ const BaseTest = require("../src/test");
  */
 class Example extends BaseTest {
   /**
-   * Run tests.
+   * @inheritdoc
    */
   async run() {
     // Tag to pass in and expected result
@@ -38,6 +38,15 @@ class Example extends BaseTest {
         result,
       );
     }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  present() {
+    // Get output and push it to console log
+    const out = super.present();
+    console.log(out);
   }
 }
 

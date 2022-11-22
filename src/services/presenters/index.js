@@ -1,8 +1,8 @@
-const Console = require("./console");
+const Default = require("./default");
 const JSO = require("./jso");
 
 module.exports = {
-  default: Console,
-  Console,
+  default: Default,
+  Default,
   JSO,
 };

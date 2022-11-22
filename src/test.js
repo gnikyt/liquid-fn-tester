@@ -2,7 +2,8 @@ const fetch = require("node-fetch");
 const fs = require("fs/promises");
 const path = require("path");
 const nodeAssert = require("assert");
-const { Event } = require("./constants");
+const { Event, PresenterType } = require("./constants");
+const { JSO, Default } = require("./services/presenters");
 
 /**
  * Base test, to be extended from.
@@ -15,8 +16,9 @@ class BaseTest {
    * @param {Tracker} param0.tracker Result tracker.
    * @param {string} param0.entry Entry name for test files.
    * @param {string} param0.shop Shopify shop URL.
+   * @param {string} param0.presenter Presenter requested from CLI.
    */
-  constructor({ assets, emitter, tracker, entry, shop }) {
+  constructor({ assets, emitter, tracker, entry, shop, presenter }) {
     // Setup entry name
     this.entry = entry;
 
@@ -31,6 +33,9 @@ class BaseTest {
 
     // Result tracker
     this.tracker = tracker;
+
+    // Presenter choice
+    this.presenter = presenter;
   }
 
   /**
@@ -206,6 +211,36 @@ class BaseTest {
       });
       return false;
     }
+  }
+
+  /**
+   * Run the test suite.
+   * @returns {void}
+   */
+  // eslint-disable-next-line class-methods-use-this
+  run() {
+    throw new Error("Not implemented");
+  }
+
+  /**
+   * Use a presenter to format the tracking data for output.
+   * You can override to implement your own presentation.
+   * @returns {void}
+   */
+  present() {
+    // Output presentation
+    let handler;
+    switch (this.presenter) {
+      case PresenterType.JSON:
+        handler = new JSO(this.tracker);
+        break;
+      case PresenterType.Default:
+      default:
+        handler = new Default(this.tracker);
+        break;
+    }
+
+    return handler.toString();
   }
 }
 

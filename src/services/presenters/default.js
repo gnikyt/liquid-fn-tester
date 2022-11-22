@@ -4,7 +4,7 @@ const textfmt = require("../../utils/text-fmt");
 /**
  * Default presenter.
  */
-class Console extends BasePresenter {
+class Default extends BasePresenter {
   /**
    * @inheritdoc
    */
@@ -42,4 +42,4 @@ class Console extends BasePresenter {
   }
 }
 
-module.exports = Console;
+module.exports = Default;

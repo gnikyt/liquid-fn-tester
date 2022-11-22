@@ -71,15 +71,15 @@ Three items are required for running a test:
 
 ### Docker
 
-`docker run -it -v .:/app:z liquid_fn node index.js (store) (token) (theme_id) (test_name) [presenter]`
+`docker run -it -v .:/app:z liquid_fn node index.js -shop=(shop) -token=(token) -theme=(theme_id) -entry=(test_name) [-presenter=(presenter)]`
 
-Example: `docker run -it -v .:/app:z liquid_fn node index.js someone.myshopify.com 89yurui389389ryiuriuu488 89389838 example`.
+Example: `docker run -it -v .:/app:z liquid_fn node index.js -shop=someone.myshopify.com -token=89yurui389389ryiuriuu488 -theme=89389838 -entry=example`.
 
 ### Manual
 
-`node index.js (store) (token) (theme_id) (test_name) [presenter]`
+`node index.js -shop=(shop) -token=(token) -theme=(theme_id) -entry=(test_name) [-presenter=(presenter)]`
 
-Example: `node index.js someone.myshopify.com 89yurui389389ryiuriuu488 89389838 example`
+Example: `node index.js -shop=someone.myshopify.com -token=89yurui389389ryiuriuu488 -theme=89389838 -entry=example`
 
 ## Events
 
@@ -154,3 +154,19 @@ Various methods of output presenters are supported; default is `console` with ad
 | Console | JSON |
 | ------- | ---- |
 | ![Output: Console](./example-console.png) | ![Output: JSON-Pretty](./example-json.png) |
+
+## Misc.
+
+**_Why NodeJS?_**
+
+Previously attempted a similar setup with Ruby, since Shopify's Liquid library is a Ruby package (Gem).
+
+While the implementation worked great, it had flaws of not being able to utilize Shopify data or Shopify's custom Liquid filters such as `asset_url`, `img_tag`, `money`, etc. which could lead to some snippets not producing a true rendered result to what it would on Shopify's servers.
+
+Given the process to get a result of the snippet rendering, the tool really could've been developed in any language such as Go, or Python, etc. however, given majority of Shopify developers most likely know their way around Javascript, then it made sense to go down that path.
+
+**_Why a new page for each test assertion?_**
+
+Shopify now caches page content. So, by creating a new page for every test assertion, we can get around the issue of having a stale rendered output. Additionally, through previous research, where there was a single page template which got updated instead of newly created, the update to theme file would take a indeterminded amount of time to refresh on Shopify, thus giving us the issue again of stale reneded output.
+
+Upon completion of the test suite, all created page templates on the theme are removed as part of cleanup.

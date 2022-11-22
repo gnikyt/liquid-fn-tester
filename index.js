@@ -3,7 +3,6 @@ const path = require("path");
 const Assets = require("./src/services/assets");
 const Emitter = require("./src/services/emitter");
 const Tracker = require("./src/services/tracker");
-const { Console, JSO } = require("./src/services/presenters");
 const textfmt = require("./src/utils/text-fmt");
 
 // Usage message
@@ -14,6 +13,37 @@ const usageMsg = `
   \tNode:
   \t> node index.js (store) (token) (theme_id) (test_name)
 `;
+
+/**
+ * Parse the CLI.
+ * @param {Array<string>} argv Arguments from CLI.
+ * @param {Array<string>} required Flags which are required to have values, or throw error.
+ * @returns {Object}
+ */
+function parseFlags(argv, required) {
+  // Extract and save
+  const result = {};
+  const matches = argv.join(" ").matchAll(/-([a-z0-9_.-]+)=([a-z0-9_.-]+)?/gm);
+  for (const match of matches) {
+    const [key, val] = match.slice(1);
+    if (val !== "") {
+      result[key] = val;
+    }
+  }
+
+  // Ensure all required flags are found
+  if (required.length > 0) {
+    const resultKeys = Object.keys(result);
+    const allExist = required.every((key) => resultKeys.includes(key));
+    if (!allExist) {
+      throw new Error(
+        `Missing one of the following required flags: ${required.join(", ")}`,
+      );
+    }
+  }
+
+  return result;
+}
 
 /**
  * Exit process and display message.
@@ -115,51 +145,29 @@ async function run(test) {
 }
 
 /**
- * Use a presenter to format the tracking data for output.
- * @param {Object} presenter Presentation handler.
- * @param {Object} tracker Results tracker.
- * @returns {string}
- */
-function present(presenter, tracker) {
-  // Output presentation
-  let handler;
-  switch (presenter) {
-    case "jso":
-    case "json":
-      handler = new JSO(tracker);
-      break;
-    case "jso-pretty":
-    case "json-pretty":
-      handler = new JSO(tracker, { pretty: 2 });
-      break;
-    case "console":
-    default:
-      handler = new Console(tracker);
-      break;
-  }
-
-  return handler.toString();
-}
-
-/**
  * Main run.
  * @returns {Promise<void>}
  */
 async function main() {
   // Get arguments we need
-  const [shop, token, themeId, entry, presenter] = process.argv.slice(2);
-  if (!shop || !token || !themeId || !entry) {
-    // Something is missing
-    exit(
-      `Missing shop, token, theme ID, or entry parameter.\nUsage:${usageMsg}`,
-    );
+  let flags;
+  try {
+    flags = parseFlags(process.argv.slice(2), [
+      "shop",
+      "token",
+      "theme",
+      "entry",
+    ]);
+  } catch (e) {
+    exit(`${e.message}\nUsage:${usageMsg}`);
   }
+  const { shop, token, entry, presenter, theme: themeId } = flags;
 
   // Setup dependencies for test
   const deps = setupDeps({ shop, token, themeId });
 
   // Init the test suite
-  const test = setupTest({ shop, entry, ...deps });
+  const test = setupTest({ shop, entry, presenter, ...deps });
 
   // Setup, run, teardown
   await setup(test);
@@ -169,7 +177,7 @@ async function main() {
   }
 
   // Output
-  console.log(present(presenter, test.tracker));
+  test.present();
 }
 
 main();
