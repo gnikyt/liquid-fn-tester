@@ -1,6 +1,6 @@
 {
   "name": "liquid-fn-tester",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Locally test Liquid snippets",
   "author": "Tyler King <tyler.n.king@gmail.com>",
   "license": "MIT",
