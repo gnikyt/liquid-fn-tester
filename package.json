@@ -15,13 +15,13 @@
     "release:patch": "npm version patch",
     "postversion": "git push && git push --tags"
   },
-  "homepage": "https://github.com/osiset/liquid-fn-tester#readme",
+  "homepage": "https://github.com/gnikyt/liquid-fn-tester#readme",
   "repository": {
     "type": "git",
-    "url": "git+github.com/osiset/liquid-fn-tester.git"
+    "url": "git+github.com/gnikyt/liquid-fn-tester.git"
   },
   "bugs": {
-    "url": "https://github.com/osiset/liquid-fn-tester/issues"
+    "url": "https://github.com/gnikyt/liquid-fn-tester/issues"
   },
   "dependencies": {
     "@shopify/shopify-api": "^5.2.0",
