@@ -170,3 +170,7 @@ Given the process to get a result of the snippet rendering, the tool really coul
 Shopify now caches page content. So, by creating a new page for every test assertion, we can get around the issue of having a stale rendered output. Additionally, through previous research, where there was a single page template which got updated instead of newly created, the update to theme file would take a indeterminded amount of time to refresh on Shopify, thus giving us the issue again of stale reneded output.
 
 Upon completion of the test suite, all created page templates on the theme are removed as part of cleanup.
+
+## TODO
+
+* Add a `Filter` service to allow for modifying data before sent to Shopify
